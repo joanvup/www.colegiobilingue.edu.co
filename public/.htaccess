@@ -1,0 +1,59 @@
+# ------------------------------------------------------------------------------
+# Apache Configuration File (.htaccess) for Colegio Bilingüe Web Deployment
+# Place this at the root of your public_html directory.
+# ------------------------------------------------------------------------------
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # --- SECTION 0: FORCE HTTPS REDIRECT ---
+  # Ensures all traffic is immediately redirected to HTTPS
+  RewriteCond %{HTTPS} off
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # --- SECTION 1: API ROUTING TO PHP BACKEND ---
+  # Transparently route clean API endpoints to their respective PHP files
+  RewriteRule ^api/admin/smtp/test$ api/admin.php?action=smtp_test [L,QSA]
+  RewriteRule ^api/admin/smtp$ api/admin.php?action=smtp [L,QSA]
+  RewriteRule ^api/admin/contact/([^/]+)$ api/admin.php?action=contact_delete&id=$1 [L,QSA]
+  RewriteRule ^api/admin/contact$ api/admin.php?action=contact [L,QSA]
+  RewriteRule ^api/admin/admissions/([^/]+)$ api/admin.php?action=admissions_delete&id=$1 [L,QSA]
+  RewriteRule ^api/admin/admissions$ api/admin.php?action=admissions [L,QSA]
+  RewriteRule ^api/contact$ api/contact.php [L,QSA]
+  RewriteRule ^api/admissions$ api/admissions.php [L,QSA]
+  RewriteRule ^api/calendar/events$ api/calendar.php [L,QSA]
+  RewriteRule ^api/recaptcha-config$ api/recaptcha-config.php [L,QSA]
+
+  # --- SECTION 2: REACT SPA FALLBACK ---
+  # If the requested filename is not a real directory or a real file,
+  # serve index.html and let React handle the routing/rendering.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . index.html [L]
+</IfModule>
+
+# --- SECTION 3: SECURITY HEADERS & GZIP COMPRESSION ---
+<IfModule mod_headers.c>
+  # Protect against Clickjacking attacks
+  Header always set X-Frame-Options "SAMEORIGIN"
+  
+  # Protect against MIME sniffing
+  Header always set X-Content-Type-Options "nosniff"
+  
+  # Enable XSS Filter in browsers
+  Header always set X-XSS-Protection "1; mode=block"
+
+  # Strict-Transport-Security (HSTS)
+  Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+
+  # Referrer-Policy
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Content-Security-Policy (CSP)
+  # Strong, production-grade security policy. Restricts scripting, framing, and object loading. Allow google maps and captcha subdomains.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://www.google.com https://www.gstatic.com https://www.recaptcha.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' data: https://fonts.gstatic.com; frame-src 'self' https://www.google.com https://maps.google.com https://maps.google.com.co https://www.youtube.com https://www.youtube-nocookie.com https://www.recaptcha.net https://recaptcha.net; connect-src 'self' https:; object-src 'none'; base-uri 'self';"
+
+  # Prevent directory listing
+  Options -Indexes
+</IfModule>

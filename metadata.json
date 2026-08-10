@@ -1,0 +1,6 @@
+{
+  "name": "Fundación Colegio Bilingüe de Valledupar",
+  "description": "Premium landing page for Fundación Colegio Bilingüe de Valledupar (FCBV), a prestigious bilingual private school in Colombia founded in 1980.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

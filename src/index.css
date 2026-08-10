@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Crimson Text", Georgia, serif;
+  --font-cinzel: "Cinzel", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  body {
+    background-color: #F8F6F1;
+    color: #1A1A1A;
+    font-family: var(--font-sans);
+  }
+}
+
+/* Custom styles for animations & grids */
+@keyframes subtle-zoom {
+  0% { transform: scale(1.02); }
+  100% { transform: scale(1.08); }
+}
+
+.animate-subtle-zoom {
+  animation: subtle-zoom 20s infinite alternate ease-in-out;
+}

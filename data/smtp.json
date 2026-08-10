@@ -1,0 +1,16 @@
+{
+  "host": "smtp.gmail.com",
+  "port": 587,
+  "secure": false,
+  "user": "contactenos@colegiobilingue.edu.co",
+  "pass": "vwnu qfnr wgfl hntp",
+  "sender": "contactenos@colegiobilingue.edu.co",
+  "recipient": "contactenos@colegiobilingue.edu.co",
+  "admissionsRecipient": "admisiones@colegiobilingue.edu.co, contactenos@colegiobilingue.edu.co",
+  "adminPassword": "S0portefcbv@1",
+  "recaptchaEnabled": false,
+  "recaptchaSiteKey": "6LfKcnwjAAAAABjMLbpeE9xNOfc1EQQZq23yY_2g",
+  "recaptchaSecretKey": "6LfKcnwjAAAAADwdu67S7FbXYjrncQumCl52aP15",
+  "googleCalendarId": "c_745f306f7f6a4473035ad8e18878e58a3f90247aa82269fc69c91c5ae17e50d0@group.calendar.google.com",
+  "googleCalendarApiKey": "AIzaSyCISHPcGyCUzREM12k6HqqFswb3ENq7Iks"
+}

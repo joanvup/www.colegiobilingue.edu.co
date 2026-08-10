@@ -1,0 +1,12 @@
+# www.robotstxt.org/
+# Reemplaza "colegiobilinguedevalledupar.edu.co" con tu dominio real
+
+User-agent: *
+Allow: /
+
+# Evitar la indexación de archivos y carpetas del panel de administración si aplica
+Disallow: /admin/
+Disallow: /api/
+
+# Enlace al mapa del sitio (Sitemap)
+Sitemap: https://colegiobilingue.edu.co/sitemap.xml
