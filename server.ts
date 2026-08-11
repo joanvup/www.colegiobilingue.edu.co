@@ -863,19 +863,10 @@ async function startServer() {
     });
   }
 
-  const portValue = process.env.PORT || 3000;
-  const isPassenger = !!process.env.PASSENGER_APP_ENV || !!process.env.PHUSION_PASSENGER || (typeof portValue === "string" && isNaN(Number(portValue)));
-
-  if (isPassenger) {
-    app.listen(portValue, () => {
-      console.log(`Server running under Passenger on: ${portValue}`);
-    });
-  } else {
-    const portNum = Number(portValue) || 3000;
-    app.listen(portNum, "0.0.0.0", () => {
-      console.log(`Server running on http://0.0.0.0:${portNum}`);
-    });
-  }
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
 }
 
 startServer();
