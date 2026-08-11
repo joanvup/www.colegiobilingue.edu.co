@@ -863,19 +863,10 @@ async function startServer() {
     });
   }
 
-  const portValue = process.env.PORT || 3000;
-  const isUnixSocket = typeof portValue === "string" && isNaN(Number(portValue));
-
-  if (isUnixSocket) {
-    app.listen(portValue, () => {
-      console.log(`Server running on Unix socket: ${portValue}`);
-    });
-  } else {
-    const portNum = Number(portValue) || 3000;
-    app.listen(portNum, "0.0.0.0", () => {
-      console.log(`Server running on http://0.0.0.0:${portNum}`);
-    });
-  }
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
 }
 
 startServer();
