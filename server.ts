@@ -194,9 +194,17 @@ async function sendAdmissionsEmailNotification(submission: any) {
   console.log("Admissions email notification sent successfully.");
 }
 
+// Process-level error handling to prevent unexpected crashes in Cloud Run
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("[Server] Unhandled Rejection at:", promise, "reason:", reason);
+});
+process.on("uncaughtException", (error) => {
+  console.error("[Server] Uncaught Exception:", error);
+});
+
 async function startServer() {
   const app = express();
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
   // Health check endpoint for Cloud Run and monitoring
   app.get("/api/health", (req, res) => {
@@ -830,12 +838,23 @@ async function startServer() {
     const srcAssetsPath = path.join(distPath, "src", "assets");
     const localAssetsPath = path.join(process.cwd(), "src", "assets");
 
-    app.use("/src/assets", express.static(srcAssetsPath));
-    app.use("/src/assets", express.static(localAssetsPath));
-    app.use(express.static(distPath));
+    if (fs.existsSync(srcAssetsPath)) {
+      app.use("/src/assets", express.static(srcAssetsPath));
+    }
+    if (fs.existsSync(localAssetsPath)) {
+      app.use("/src/assets", express.static(localAssetsPath));
+    }
+    if (fs.existsSync(distPath)) {
+      app.use(express.static(distPath));
+    }
 
     app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
+      const indexPath = path.join(distPath, "index.html");
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(200).send("<!DOCTYPE html><html lang='es'><head><meta charset='UTF-8'><title>Fundación Colegio Bilingüe</title></head><body><div id='root'></div><script>location.reload();</script></body></html>");
+      }
     });
   }
 
