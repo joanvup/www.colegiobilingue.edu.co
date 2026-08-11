@@ -826,8 +826,13 @@ async function startServer() {
     console.error("[RAG] Background warm up error:", err);
   });
 
+  // Robust check for production mode vs development mode
+  const isProduction = process.env.NODE_ENV === "production" || 
+                       (typeof __filename !== "undefined" && (__filename.includes("dist") || __filename.endsWith(".cjs"))) ||
+                       !fs.existsSync(path.join(process.cwd(), "server.ts"));
+
   // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+  if (!isProduction) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
