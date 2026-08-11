@@ -204,7 +204,7 @@ process.on("uncaughtException", (error) => {
 
 async function startServer() {
   const app = express();
-  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+  const PORT = process.env.PORT || 3000;
 
   // Health check endpoint for Cloud Run and monitoring
   app.get("/api/health", (req, res) => {
@@ -858,9 +858,17 @@ async function startServer() {
     });
   }
 
-  app.listen(Number(PORT), "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  if (typeof PORT === "string" && isNaN(Number(PORT))) {
+    // It's a Unix socket path (common in Phusion Passenger / Hostinger)
+    app.listen(PORT, () => {
+      console.log(`Server running on Unix socket: ${PORT}`);
+    });
+  } else {
+    const portNum = Number(PORT) || 3000;
+    app.listen(portNum, "0.0.0.0", () => {
+      console.log(`Server running on http://0.0.0.0:${portNum}`);
+    });
+  }
 }
 
 startServer();
