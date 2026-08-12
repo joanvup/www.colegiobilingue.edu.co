@@ -433,7 +433,33 @@ class RagEngine {
   }> {
     await this.ensureIndexed();
 
-    const searchResults = this.searchChunks(query, 8);
+    // Optimize search for exact frequent queries from the UI
+    const FAQ_SEARCH_MAPPING: Record<string, string> = {
+      "¿cuáles son los requisitos de matrícula?": "requisitos documentos matricula admision inscripcion proceso estudiante",
+      "¿cuáles son los derechos de los estudiantes?": "derechos garantias estudiante matricula articulo manual",
+      "¿cuáles son los deberes de los estudiantes?": "deberes obligaciones responsabilidades estudiante manual",
+      "¿cuál es la misión institucional?": "mision propositos filosofia colegio bilingue valledupar institucional",
+      "¿cuál es la visión del colegio para el 2030?": "vision horizonte futuro colegio bilingue valledupar institucional 2030",
+      "¿qué establece el manual sobre los uniformes?": "uniformes prendas presentacion personal vestuario diario gala educacion fisica zapatos",
+      "¿cómo funciona el sistema de evaluación (siee)?": "siee sistema institucional evaluacion calificacion promocion logros boletin",
+      "¿cuáles son las faltas tipo i, ii y iii?": "faltas tipo i ii iii disciplina sancion correctivos leve grave gravisima",
+      "what are the enrollment requirements?": "requisitos documentos matricula admision inscripcion proceso estudiante",
+      "what are the rights of students?": "derechos garantias estudiante matricula articulo manual",
+      "what are the duties of students?": "deberes obligaciones responsabilidades estudiante manual",
+      "what is the institutional mission?": "mision propositos filosofia colegio bilingue valledupar institucional",
+      "what is the school vision for 2030?": "vision horizonte futuro colegio bilingue valledupar institucional 2030",
+      "what does the manual say about uniforms?": "uniformes prendas presentacion personal vestuario diario gala educacion fisica zapatos",
+      "how does the evaluation system (siee) work?": "siee sistema institucional evaluacion calificacion promocion logros boletin",
+      "what are type i, ii, and iii infractions?": "faltas tipo i ii iii disciplina sancion correctivos leve grave gravisima",
+    };
+
+    const cleanQuery = query.trim().toLowerCase();
+    let searchQuery = query;
+    if (FAQ_SEARCH_MAPPING[cleanQuery]) {
+      searchQuery = query + " " + FAQ_SEARCH_MAPPING[cleanQuery];
+    }
+
+    const searchResults = this.searchChunks(searchQuery, 8);
 
     // Minimum relevance threshold check:
     // If no results or top score is negligible (e.g. out of scope query), return immediate faithful fallback
