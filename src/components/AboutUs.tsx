@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "../i18n";
+import { Helmet } from "react-helmet-async";
 import { BookOpen, Award, Shield, Users, Calendar, ArrowRight, Heart, Sparkles, CheckCircle2, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -41,8 +42,60 @@ export default function AboutUs({ subTab }: AboutUsProps) {
     { id: "profiles", labelEN: "Bilingüista Community", labelES: "Comunidad Bilingüista", icon: Users },
   ];
 
+  // Dynamic SEO specific for the About Us sub-tabs
+  const getTabSeoData = () => {
+    if (language === "EN") {
+      switch (activeTab) {
+        case "history":
+          return {
+            title: "Our Legacy & History | Fundación Colegio Bilingüe",
+            description: "Learn about the founding families, our expansion, and the rich history of Fundación Colegio Bilingüe de Valledupar since 1980.",
+          };
+        case "pillars":
+          return {
+            title: "Mission, Vision & Quality | Fundación Colegio Bilingüe",
+            description: "Discover our institutional mission, our vision for 2030, and the core quality policies that drive our bilingual education.",
+          };
+        case "profiles":
+          return {
+            title: "Teacher & Student Profiles | Fundación Colegio Bilingüe",
+            description: "Meet the Bilingüista community. Learn about the ethical, bilingual, and leadership profiles of our students and teachers.",
+          };
+      }
+    } else {
+      switch (activeTab) {
+        case "history":
+          return {
+            title: "Nuestro Legado e Historia | Fundación Colegio Bilingüe",
+            description: "Conoce a las familias fundadoras, nuestra expansión y la rica historia de la Fundación Colegio Bilingüe de Valledupar desde 1980.",
+          };
+        case "pillars":
+          return {
+            title: "Misión, Visión y Calidad | Fundación Colegio Bilingüe",
+            description: "Descubre nuestra misión institucional, nuestra visión para el 2030 y las políticas de calidad que impulsan nuestra educación bilingüe.",
+          };
+        case "profiles":
+          return {
+            title: "Perfiles de Docentes y Estudiantes | Fundación Colegio Bilingüe",
+            description: "Conoce a la comunidad Bilingüista. Descubre el perfil ético, bilingüe y de liderazgo de nuestros estudiantes y docentes.",
+          };
+      }
+    }
+  };
+
+  const seo = getTabSeoData();
+
   return (
     <section id="about-us" className="py-24 bg-[#F8F6F1] text-[#1A1A1A] relative overflow-hidden">
+      <Helmet>
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta property="og:title" content={seo.title} />
+        <meta property="og:description" content={seo.description} />
+        <meta name="twitter:title" content={seo.title} />
+        <meta name="twitter:description" content={seo.description} />
+      </Helmet>
+
       {/* Decorative glows */}
       <div className="absolute top-1/4 left-10 w-96 h-96 bg-[#1B3A6B]/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-[#C9A961]/5 rounded-full blur-[120px] pointer-events-none" />

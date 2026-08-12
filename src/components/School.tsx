@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLanguage } from "../i18n";
+import { Helmet } from "react-helmet-async";
 import { BookOpen, Award, Shield, FileText, ChevronRight, CheckCircle2, Download, Eye, X, Book, Feather, Lightbulb, Music, Play, Pause, Compass } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import VirtualTourSection from "./VirtualTourSection";
@@ -73,8 +74,58 @@ export default function School({ subTab }: SchoolProps) {
   const imgPrimary = "/src/assets/images/primary_students_1783475784824.jpg";
   const imgHighSchool = "/src/assets/images/high_school_mun_1783475798390.jpg";
 
+  // Dynamic SEO specific for the School sub-tabs
+  const getTabSeoData = () => {
+    if (language === "EN") {
+      switch (activeView) {
+        case "levels":
+          if (activeLevel === "preschool") return { title: "Preschool | Academic Levels | Fundación Colegio Bilingüe", description: "Discover our Preschool program, fostering curiosity and foundational bilingual skills." };
+          if (activeLevel === "primary") return { title: "Primary | Academic Levels | Fundación Colegio Bilingüe", description: "Explore our Primary education, building strong academic and ethical foundations." };
+          return { title: "High School | Academic Levels | Fundación Colegio Bilingüe", description: "Learn about our High School program and international models like MUN." };
+        case "symbols":
+          return {
+            title: "Institutional Symbols & Anthem | Fundación Colegio Bilingüe",
+            description: "Learn about our school shield, flag, and anthem that represent our core values.",
+          };
+        case "virtual-tour":
+          return {
+            title: "Virtual Tour | Campus | Fundación Colegio Bilingüe",
+            description: "Take a 360 virtual tour of our modern campus, classrooms, and sports facilities.",
+          };
+      }
+    } else {
+      switch (activeView) {
+        case "levels":
+          if (activeLevel === "preschool") return { title: "Preescolar | Niveles Académicos | Fundación Colegio Bilingüe", description: "Descubre nuestro programa de Preescolar, fomentando la curiosidad y las bases bilingües." };
+          if (activeLevel === "primary") return { title: "Primaria | Niveles Académicos | Fundación Colegio Bilingüe", description: "Explora nuestra educación Primaria, construyendo sólida formación académica y ética." };
+          return { title: "Bachillerato | Niveles Académicos | Fundación Colegio Bilingüe", description: "Conoce nuestro programa de Bachillerato y modelos internacionales como MUN." };
+        case "symbols":
+          return {
+            title: "Símbolos Institucionales e Himno | Fundación Colegio Bilingüe",
+            description: "Conoce nuestro escudo, bandera e himno que representan nuestros valores fundamentales.",
+          };
+        case "virtual-tour":
+          return {
+            title: "Recorrido Virtual | Campus | Fundación Colegio Bilingüe",
+            description: "Realiza un recorrido virtual 360 de nuestro moderno campus, aulas y áreas deportivas.",
+          };
+      }
+    }
+  };
+
+  const seo = getTabSeoData();
+
   return (
     <section id="the-school" className="py-24 bg-white text-[#1A1A1A] relative overflow-hidden border-t border-b border-slate-200">
+      <Helmet>
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta property="og:title" content={seo.title} />
+        <meta property="og:description" content={seo.description} />
+        <meta name="twitter:title" content={seo.title} />
+        <meta name="twitter:description" content={seo.description} />
+      </Helmet>
+      
       <div className="absolute top-1/3 right-10 w-80 h-80 bg-[#1B3A6B]/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-1/3 left-10 w-80 h-80 bg-[#C9A961]/5 rounded-full blur-[100px] pointer-events-none" />
 
