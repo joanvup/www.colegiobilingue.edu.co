@@ -354,7 +354,7 @@ export default function App() {
         <Contact />
 
         {/* Intelligent Institutional RAG Chatbot (Manual de Convivencia & PEI) */}
-        <Chatbot />
+        {language === "ES" && <Chatbot />}
 
         {/* Persistent Floating WhatsApp Help Desk Button */}
         <WhatsAppButton />
