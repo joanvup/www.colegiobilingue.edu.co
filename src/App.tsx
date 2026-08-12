@@ -21,6 +21,7 @@ import ScrollToTopButton from "./components/ScrollToTopButton";
 import Footer from "./components/Footer";
 import AdminPanel from "./components/AdminPanel";
 import GalleryModal from "./components/GalleryModal";
+import DynamicPopup from "./components/DynamicPopup";
 
 export default function App() {
   // Try to determine initial language from URL or browser preference
@@ -358,6 +359,9 @@ export default function App() {
 
         {/* Persistent Floating WhatsApp Help Desk Button */}
         <WhatsAppButton />
+
+        {/* Dynamic Popup Modal */}
+        <DynamicPopup />
 
         {/* Floating portals access buttons (Phidias, Cafeteria, Davibank) */}
         <FloatingAccessButtons />

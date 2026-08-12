@@ -3,7 +3,7 @@ import { useLanguage } from "../i18n";
 import { 
   Lock, Settings, Mail, Phone, Server, Database, Trash2, Eye, EyeOff, 
   CheckCircle2, AlertTriangle, LogOut, ArrowLeft, Check, Loader2, KeyRound, RefreshCw, Send, Inbox, ShieldAlert,
-  Calendar
+  Calendar, Megaphone, Image as ImageIcon
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -41,7 +41,17 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [admissions, setAdmissions] = useState<any[]>([]);
   const [submissionsType, setSubmissionsType] = useState<"contact" | "admissions">("contact");
-  const [activeTab, setActiveTab] = useState<"smtp" | "submissions">("smtp");
+  const [activeTab, setActiveTab] = useState<"smtp" | "submissions" | "popup">("smtp");
+  
+  const [popupConfig, setPopupConfig] = useState({
+    enabled: false,
+    imageBase64: "",
+    linkUrl: "",
+    startDate: "",
+    endDate: ""
+  });
+  const [savingPopup, setSavingPopup] = useState(false);
+  const [popupSaveSuccess, setPopupSaveSuccess] = useState(false);
   
   // Action status states
   const [loadingConfig, setLoadingConfig] = useState(false);
@@ -73,6 +83,7 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         setIsAuthenticated(true);
         localStorage.setItem("fcbv_admin_token", password);
         fetchSubmissions(password);
+        fetchPopupConfig(password);
       } else {
         setAuthError(language === "EN" ? "Incorrect password" : "Contraseña incorrecta");
       }
@@ -109,6 +120,7 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             setSmtpConfig(config);
             setIsAuthenticated(true);
             fetchSubmissions(savedToken);
+            fetchPopupConfig(savedToken);
           } else {
             localStorage.removeItem("fcbv_admin_token");
           }
@@ -151,6 +163,50 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       console.error("Failed to fetch submissions:", err);
     } finally {
       setLoadingSubmissions(false);
+    }
+  };
+
+  const fetchPopupConfig = async (token = password) => {
+    try {
+      const res = await fetch("/api/admin/popup", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "X-Admin-Token": token,
+        },
+      });
+      if (res.ok) {
+        setPopupConfig(await res.json());
+      }
+    } catch (err) {
+      console.error("Failed to fetch popup config:", err);
+    }
+  };
+
+  const handleSavePopup = async (e: FormEvent) => {
+    e.preventDefault();
+    setSavingPopup(true);
+    setPopupSaveSuccess(false);
+    try {
+      const res = await fetch("/api/admin/popup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${password}`,
+          "X-Admin-Token": password,
+        },
+        body: JSON.stringify(popupConfig),
+      });
+
+      if (res.ok) {
+        setPopupSaveSuccess(true);
+        setTimeout(() => setPopupSaveSuccess(false), 3000);
+      } else {
+        alert(language === "EN" ? "Failed to save popup configuration" : "Error al guardar la configuración del aviso");
+      }
+    } catch (err) {
+      alert(language === "EN" ? "Network error" : "Error de conexión");
+    } finally {
+      setSavingPopup(false);
     }
   };
 
@@ -388,6 +444,18 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       {submissions.length + admissions.length}
                     </span>
                   )}
+                </button>
+
+                <button
+                  onClick={() => setActiveTab("popup")}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-left transition-colors cursor-pointer ${
+                    activeTab === "popup" 
+                      ? "bg-[#1B3A6B] text-white border border-[#C9A961]/20" 
+                      : "text-slate-700 hover:bg-slate-200"
+                  }`}
+                >
+                  <Megaphone className="w-4 h-4 shrink-0" />
+                  <span>{language === "EN" ? "Welcome Popup" : "Popup de Inicio"}</span>
                 </button>
               </div>
 
@@ -799,7 +867,7 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     </div>
                   </form>
                 </div>
-              ) : (
+              ) : activeTab === "submissions" ? (
                 /* Submissions inbox list */
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
@@ -980,6 +1048,162 @@ export default function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       </div>
                     )
                   )}
+                </div>
+              ) : (
+                /* Popup configuration */
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="font-serif text-lg font-bold text-[#1B3A6B]">
+                      {language === "EN" ? "Welcome Popup Notice" : "Aviso Emergente de Inicio"}
+                    </h4>
+                    <p className="text-xs text-slate-500 font-sans mt-1">
+                      {language === "EN" 
+                        ? "Configure a promotional flyer or notice that appears when users visit the homepage." 
+                        : "Configura un aviso o flyer promocional que aparecerá cuando los usuarios visiten el inicio."}
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleSavePopup} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
+                    {/* Enabled Toggle */}
+                    <div className="flex items-center gap-3 p-4 bg-[#F8F6F1] border border-[#C9A961]/25 rounded-xl">
+                      <input
+                        type="checkbox"
+                        checked={popupConfig.enabled}
+                        onChange={(e) => setPopupConfig({ ...popupConfig, enabled: e.target.checked })}
+                        className="w-4 h-4 text-[#1B3A6B] rounded border-slate-300"
+                        id="popupEnabled"
+                      />
+                      <label htmlFor="popupEnabled" className="text-sm font-bold text-[#1B3A6B] cursor-pointer">
+                        {language === "EN" ? "Enable Welcome Popup" : "Activar Aviso de Inicio"}
+                      </label>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        {/* Image Upload/Base64 */}
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] uppercase tracking-wider text-slate-600 font-bold flex justify-between">
+                            <span>{language === "EN" ? "Flyer Image" : "Imagen del Aviso (Flyer)"}</span>
+                          </label>
+                          <div className="flex flex-col gap-2">
+                            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
+                              <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
+                                <ImageIcon className="w-6 h-6 mb-2 text-slate-400" />
+                                <p className="text-xs text-slate-500 font-semibold">{language === "EN" ? "Click to upload image" : "Clic para subir imagen"}</p>
+                                <p className="text-[10px] text-slate-400 font-sans mt-1">JPG, PNG, GIF, WEBP</p>
+                              </div>
+                              <input 
+                                type="file" 
+                                accept="image/*"
+                                className="hidden" 
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (e) => {
+                                      setPopupConfig({ ...popupConfig, imageBase64: e.target?.result as string });
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                }} 
+                              />
+                            </label>
+                            
+                            {popupConfig.imageBase64 && (
+                              <div className="relative mt-2 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center p-2">
+                                <img src={popupConfig.imageBase64} alt="Preview" className="max-h-40 object-contain" />
+                                <button
+                                  type="button"
+                                  onClick={() => setPopupConfig({ ...popupConfig, imageBase64: "" })}
+                                  className="absolute top-2 right-2 p-1.5 bg-white/90 text-red-500 rounded-lg hover:bg-red-50 transition-colors shadow-sm"
+                                  title={language === "EN" ? "Remove image" : "Quitar imagen"}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        {/* Link URL */}
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] uppercase tracking-wider text-slate-600 font-bold">
+                            {language === "EN" ? "Destination Link (Optional)" : "Enlace de Destino (Opcional)"}
+                          </label>
+                          <input
+                            type="url"
+                            placeholder="https://..."
+                            value={popupConfig.linkUrl}
+                            onChange={(e) => setPopupConfig({ ...popupConfig, linkUrl: e.target.value })}
+                            className="w-full bg-slate-50 border border-slate-200 focus:border-[#1B3A6B] rounded-xl px-3 py-2.5 text-sm focus:outline-none"
+                          />
+                          <p className="text-[9px] text-slate-400 font-sans">
+                            {language === "EN" ? "Where users go when they click the image" : "A dónde irán los usuarios al hacer clic en la imagen"}
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          {/* Start Date */}
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] uppercase tracking-wider text-slate-600 font-bold">
+                              {language === "EN" ? "Start Date" : "Fecha de Inicio"}
+                            </label>
+                            <input
+                              type="date"
+                              value={popupConfig.startDate}
+                              onChange={(e) => setPopupConfig({ ...popupConfig, startDate: e.target.value })}
+                              className="w-full bg-slate-50 border border-slate-200 focus:border-[#1B3A6B] rounded-xl px-3 py-2 text-sm focus:outline-none"
+                            />
+                          </div>
+
+                          {/* End Date */}
+                          <div className="space-y-1.5">
+                            <label className="text-[10px] uppercase tracking-wider text-slate-600 font-bold">
+                              {language === "EN" ? "End Date" : "Fecha Final"}
+                            </label>
+                            <input
+                              type="date"
+                              value={popupConfig.endDate}
+                              onChange={(e) => setPopupConfig({ ...popupConfig, endDate: e.target.value })}
+                              className="w-full bg-slate-50 border border-slate-200 focus:border-[#1B3A6B] rounded-xl px-3 py-2 text-sm focus:outline-none"
+                            />
+                          </div>
+                        </div>
+                        <p className="text-[9px] text-slate-400 font-sans mt-1">
+                          {language === "EN" 
+                            ? "Leave dates empty to show it always (if enabled)." 
+                            : "Deje las fechas vacías para mostrarlo siempre (si está activo)."}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-100">
+                      <button
+                        type="submit"
+                        disabled={savingPopup}
+                        className="px-6 py-2.5 bg-[#1B3A6B] hover:bg-[#0F2444] text-white rounded-xl text-sm font-bold uppercase tracking-wider transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {savingPopup ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>{language === "EN" ? "Saving..." : "Guardando..."}</span>
+                          </>
+                        ) : popupSaveSuccess ? (
+                          <>
+                            <Check className="w-4 h-4" />
+                            <span>{language === "EN" ? "Saved" : "Guardado"}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-4 h-4" />
+                            <span>{language === "EN" ? "Save Config" : "Guardar Configuración"}</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
                 </div>
               )}
             </div>

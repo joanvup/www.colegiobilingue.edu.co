@@ -9,6 +9,7 @@ const DATA_DIR = path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "submissions.json");
 const SMTP_FILE = path.join(DATA_DIR, "smtp.json");
 const ADMISSIONS_FILE = path.join(DATA_DIR, "admissions.json");
+const POPUP_FILE = path.join(DATA_DIR, "popup.json");
 
 // Ensure data directory and files exist
 if (!fs.existsSync(DATA_DIR)) {
@@ -19,6 +20,18 @@ if (!fs.existsSync(DATA_FILE)) {
 }
 if (!fs.existsSync(ADMISSIONS_FILE)) {
   fs.writeFileSync(ADMISSIONS_FILE, JSON.stringify([], null, 2), "utf-8");
+}
+
+const DEFAULT_POPUP = {
+  enabled: false,
+  imageBase64: "",
+  linkUrl: "",
+  startDate: "",
+  endDate: ""
+};
+
+if (!fs.existsSync(POPUP_FILE)) {
+  fs.writeFileSync(POPUP_FILE, JSON.stringify(DEFAULT_POPUP, null, 2), "utf-8");
 }
 
 const DEFAULT_SMTP = {
@@ -212,8 +225,8 @@ async function startServer() {
   });
 
   // Body parsers
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ limit: "10mb" }));
+  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
   // Helper middleware for admin auth
   const authAdmin = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -642,6 +655,33 @@ async function startServer() {
     } catch (error: any) {
       console.error("SMTP Test failed:", error);
       res.status(500).json({ error: error.message || "Failed to send test email" });
+    }
+  });
+
+  app.get("/api/popup", (req, res) => {
+    try {
+      const data = fs.readFileSync(POPUP_FILE, "utf-8");
+      res.json(JSON.parse(data));
+    } catch (err) {
+      res.status(500).json({ error: "Failed to read popup config" });
+    }
+  });
+
+  app.get("/api/admin/popup", authAdmin, (req, res) => {
+    try {
+      const data = fs.readFileSync(POPUP_FILE, "utf-8");
+      res.json(JSON.parse(data));
+    } catch (err) {
+      res.status(500).json({ error: "Failed to read popup config" });
+    }
+  });
+
+  app.post("/api/admin/popup", authAdmin, (req, res) => {
+    try {
+      fs.writeFileSync(POPUP_FILE, JSON.stringify(req.body, null, 2), "utf-8");
+      res.json({ success: true });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to save popup config" });
     }
   });
 
