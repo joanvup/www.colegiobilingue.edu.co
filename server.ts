@@ -864,9 +864,18 @@ async function startServer() {
   }
 
   const port = process.env.PORT || 3000;
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
+  
+  if (typeof port === "string" && isNaN(Number(port))) {
+    // For Hostinger/Passenger using Unix sockets
+    app.listen(port, () => {
+      console.log(`Server running on Unix socket: ${port}`);
+    });
+  } else {
+    // For Cloud Run and local dev requiring 0.0.0.0 binding
+    app.listen(Number(port), "0.0.0.0", () => {
+      console.log(`Server running on port ${port}`);
+    });
+  }
 }
 
 startServer();
