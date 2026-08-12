@@ -6,11 +6,12 @@ import { motion, AnimatePresence } from "motion/react";
 
 interface AboutUsProps {
   subTab?: string;
+  isActive?: boolean;
 }
 
 type TabType = "history" | "pillars" | "profiles";
 
-export default function AboutUs({ subTab }: AboutUsProps) {
+export default function AboutUs({ subTab, isActive }: AboutUsProps) {
   const { language, t } = useLanguage();
   const [activeTab, setActiveTab] = useState<TabType>("history");
   const [activeProfileTab, setActiveProfileTab] = useState<"teacher" | "student">("teacher");
@@ -87,14 +88,16 @@ export default function AboutUs({ subTab }: AboutUsProps) {
 
   return (
     <section id="about-us" className="py-24 bg-[#F8F6F1] text-[#1A1A1A] relative overflow-hidden">
-      <Helmet>
-        <title>{seo.title}</title>
-        <meta name="description" content={seo.description} />
-        <meta property="og:title" content={seo.title} />
-        <meta property="og:description" content={seo.description} />
-        <meta name="twitter:title" content={seo.title} />
-        <meta name="twitter:description" content={seo.description} />
-      </Helmet>
+      {isActive && (
+        <Helmet>
+          <title>{seo.title}</title>
+          <meta name="description" content={seo.description} />
+          <meta property="og:title" content={seo.title} />
+          <meta property="og:description" content={seo.description} />
+          <meta name="twitter:title" content={seo.title} />
+          <meta name="twitter:description" content={seo.description} />
+        </Helmet>
+      )}
 
       {/* Decorative glows */}
       <div className="absolute top-1/4 left-10 w-96 h-96 bg-[#1B3A6B]/5 rounded-full blur-[120px] pointer-events-none" />

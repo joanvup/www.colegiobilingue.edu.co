@@ -31,14 +31,8 @@ export default function App() {
       if (langParam === "ES" || langParam === "EN") {
         return langParam as Language;
       }
-      
-      // Auto-detect browser language
-      const browserLang = navigator.language;
-      if (browserLang && browserLang.toLowerCase().startsWith("es")) {
-        return "ES";
-      }
     }
-    return "EN"; // Fallback default
+    return "EN"; // Force English by default as requested
   };
 
   const [language, setLanguageState] = useState<Language>(getInitialLanguage());
@@ -345,10 +339,10 @@ export default function App() {
         <Hero onExplore={(secId) => handleNavigate(secId)} />
 
         {/* Section 1: About Us (History, Mission, Vision, Quality, Profiles) */}
-        <AboutUs subTab={subTab} />
+        <AboutUs subTab={subTab} isActive={activeSection === "about-us"} />
 
         {/* Section 2: Academic Levels, Symbols, Anthem & Student Handbook */}
-        <School subTab={subTab} />
+        <School subTab={subTab} isActive={activeSection === "the-school"} />
 
         {/* Section 2.5: Google Calendar synchronized Activities Calendar */}
         <CalendarSection />

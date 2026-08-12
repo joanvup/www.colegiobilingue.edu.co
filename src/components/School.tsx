@@ -7,12 +7,13 @@ import VirtualTourSection from "./VirtualTourSection";
 
 interface SchoolProps {
   subTab?: string;
+  isActive?: boolean;
 }
 
 type SchoolView = "levels" | "symbols" | "virtual-tour";
 type LevelType = "preschool" | "primary" | "high-school";
 
-export default function School({ subTab }: SchoolProps) {
+export default function School({ subTab, isActive }: SchoolProps) {
   const { language, t } = useLanguage();
   const [activeView, setActiveView] = useState<SchoolView>("levels");
   const [activeLevel, setActiveLevel] = useState<LevelType>("preschool");
@@ -117,14 +118,16 @@ export default function School({ subTab }: SchoolProps) {
 
   return (
     <section id="the-school" className="py-24 bg-white text-[#1A1A1A] relative overflow-hidden border-t border-b border-slate-200">
-      <Helmet>
-        <title>{seo.title}</title>
-        <meta name="description" content={seo.description} />
-        <meta property="og:title" content={seo.title} />
-        <meta property="og:description" content={seo.description} />
-        <meta name="twitter:title" content={seo.title} />
-        <meta name="twitter:description" content={seo.description} />
-      </Helmet>
+      {isActive && (
+        <Helmet>
+          <title>{seo.title}</title>
+          <meta name="description" content={seo.description} />
+          <meta property="og:title" content={seo.title} />
+          <meta property="og:description" content={seo.description} />
+          <meta name="twitter:title" content={seo.title} />
+          <meta name="twitter:description" content={seo.description} />
+        </Helmet>
+      )}
       
       <div className="absolute top-1/3 right-10 w-80 h-80 bg-[#1B3A6B]/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-1/3 left-10 w-80 h-80 bg-[#C9A961]/5 rounded-full blur-[100px] pointer-events-none" />
